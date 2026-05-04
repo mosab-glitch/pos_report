@@ -1,0 +1,899 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة نقاط البيع</title>
+
+<style>
+:root{
+  --primary:#2563eb;
+  --dark:#0f172a;
+  --card:#ffffff;
+  --bg:#f1f5f9;
+  --muted:#64748b;
+  --border:#e2e8f0;
+  --success:#16a34a;
+  --danger:#dc2626;
+  --warning:#f59e0b;
+}
+
+*{box-sizing:border-box}
+
+body{
+  margin:0;
+  font-family:Tahoma,Arial,sans-serif;
+  background:linear-gradient(135deg,#eef2ff,#f8fafc);
+  color:#0f172a;
+}
+
+.hidden{display:none!important}
+
+.app{
+  max-width:1250px;
+  margin:auto;
+  padding:16px;
+}
+
+.topbar{
+  background:var(--dark);
+  color:white;
+  padding:18px;
+  border-radius:18px;
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:12px;
+  margin-bottom:16px;
+  box-shadow:0 10px 30px rgba(15,23,42,.18);
+}
+
+.brand{
+  font-size:22px;
+  font-weight:bold;
+}
+
+.user-chip{
+  background:rgba(255,255,255,.12);
+  padding:8px 12px;
+  border-radius:999px;
+  font-size:14px;
+}
+
+.panel{
+  background:var(--card);
+  border:1px solid var(--border);
+  border-radius:18px;
+  padding:18px;
+  box-shadow:0 8px 24px rgba(15,23,42,.08);
+  margin-bottom:16px;
+}
+
+.login-panel{
+  max-width:430px;
+  margin:55px auto;
+}
+
+h2,h3{margin-top:0}
+
+input,select,button{
+  width:100%;
+  padding:12px;
+  border-radius:12px;
+  border:1px solid #cbd5e1;
+  font-size:15px;
+  font-family:Tahoma,Arial;
+}
+
+button{
+  background:var(--primary);
+  color:white;
+  border:none;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+button:hover{filter:brightness(.95)}
+
+.btn-dark{background:#334155}
+.btn-green{background:var(--success)}
+.btn-red{background:var(--danger)}
+.btn-gray{background:#475569}
+
+.form-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:10px;
+  margin:14px 0;
+}
+
+.login-grid{
+  display:flex;
+  flex-direction:column;
+  gap:12px;
+}
+
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(210px,1fr));
+  gap:12px;
+}
+
+.nav-card{
+  background:linear-gradient(180deg,#ffffff,#f8fafc);
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:18px;
+  cursor:pointer;
+  transition:.2s;
+}
+
+.nav-card:hover{
+  transform:translateY(-3px);
+  box-shadow:0 10px 22px rgba(15,23,42,.1);
+}
+
+.nav-card .icon{
+  font-size:30px;
+  margin-bottom:10px;
+}
+
+.nav-card b{display:block;margin-bottom:5px}
+.nav-card span{color:var(--muted);font-size:13px}
+
+.summary-box{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(160px,1fr));
+  gap:12px;
+  margin:14px 0;
+}
+
+.summary-card{
+  background:#f8fafc;
+  border:1px solid var(--border);
+  border-radius:16px;
+  padding:16px;
+}
+
+.summary-card .label{
+  color:var(--muted);
+  font-size:13px;
+  margin-bottom:8px;
+}
+
+.summary-card .value{
+  font-size:21px;
+  font-weight:bold;
+}
+
+.message{
+  margin:10px 0;
+  font-weight:bold;
+  font-size:14px;
+}
+
+.success{color:var(--success)}
+.error{color:var(--danger)}
+.warn{color:var(--warning)}
+
+.table-wrapper{
+  width:100%;
+  overflow-x:auto;
+  border:1px solid var(--border);
+  border-radius:14px;
+}
+
+table{
+  width:100%;
+  min-width:760px;
+  border-collapse:collapse;
+  background:white;
+}
+
+th{
+  background:#1e293b;
+  color:white;
+}
+
+th,td{
+  padding:11px;
+  text-align:center;
+  border-bottom:1px solid var(--border);
+  white-space:nowrap;
+  font-size:14px;
+}
+
+tbody tr:hover{background:#f8fafc}
+
+.section-header{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
+
+.section-header button{
+  max-width:120px;
+}
+
+.public-box{
+  background:#ecfeff;
+  border:1px solid #a5f3fc;
+}
+
+@media(max-width:800px){
+  .app{padding:10px}
+  .topbar{flex-direction:column;align-items:flex-start;border-radius:14px}
+  .form-grid{grid-template-columns:1fr}
+  .section-header{flex-direction:column;align-items:stretch}
+  .section-header button{max-width:none}
+  table{font-size:13px}
+}
+</style>
+</head>
+
+<body>
+
+<div class="app">
+
+  <div class="topbar">
+    <div class="brand">📊 لوحة نقاط البيع</div>
+    <div id="userChip" class="user-chip hidden"></div>
+  </div>
+
+  <!-- LOGIN -->
+  <section id="loginSection" class="panel login-panel">
+    <h2>تسجيل الدخول</h2>
+    <div class="login-grid">
+      <input type="text" id="username" placeholder="اسم المستخدم">
+      <input type="password" id="password" placeholder="كلمة المرور">
+      <button onclick="doLogin()">دخول</button>
+    </div>
+    <div id="loginMsg" class="message"></div>
+  </section>
+
+  <!-- DASHBOARD -->
+  <section id="dashboardSection" class="hidden">
+
+    <div class="panel">
+      <h2>لوحة التحكم</h2>
+
+      <div class="form-grid">
+        <input type="date" id="dashboardDate">
+        <button onclick="loadDashboardToday()">تحديث لوحة اليوم</button>
+      </div>
+
+      <div id="dashboardMsg" class="message"></div>
+
+      <div class="summary-box">
+        <div class="summary-card"><div class="label">إجمالي المبيعات</div><div class="value"><span id="dashTotalSales">0</span> د.أ</div></div>
+        <div class="summary-card"><div class="label">إجمالي المدفوع</div><div class="value"><span id="dashTotalPaid">0</span> د.أ</div></div>
+        <div class="summary-card"><div class="label">عدد الفواتير</div><div class="value" id="dashInvoiceCount">0</div></div>
+        <div class="summary-card"><div class="label">عدد القطع المباعة</div><div class="value" id="dashSoldItems">0</div></div>
+        <div class="summary-card"><div class="label">أعلى صنف</div><div class="value" id="dashTopItem">-</div></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <div class="cards">
+        <div class="nav-card" onclick="openSection('itemSalesSection')"><div class="icon">📊</div><b>إحصائيات الأصناف</b><span>الأعلى مبيعًا حسب القيمة أو الكمية</span></div>
+        <div class="nav-card" onclick="openSalesReport()"><div class="icon">🧾</div><b>تقرير المبيعات</b><span>الفواتير ضمن فترة زمنية</span></div>
+        <div class="nav-card" onclick="openSection('inventorySection')"><div class="icon">📦</div><b>تقرير المخزون</b><span>المخزون الحالي وقيمته</span></div>
+        <div class="nav-card" onclick="openSection('itemPriceSection')"><div class="icon">🔍</div><b>استعلام سعر صنف</b><span>صفحة عامة للزبائن بدون دخول</span></div>
+        <div class="nav-card" onclick="openSection('lowStockSection')"><div class="icon">⚠️</div><b>المخزون القليل</b><span>الأصناف التي وصلت للحد المحدد</span></div>
+        <div class="nav-card" onclick="openCompareSales()"><div class="icon">📈</div><b>مقارنة المبيعات</b><span>مبيعات كل يوم ضمن فترة</span></div>
+      </div>
+    </div>
+
+    <div class="panel">
+      <h3>مبيعات المستخدمين</h3>
+      <div class="table-wrapper">
+        <table>
+          <thead>
+            <tr><th>#</th><th>المستخدم</th><th>عدد الفواتير</th><th>إجمالي المبيعات</th><th>إجمالي المدفوع</th></tr>
+          </thead>
+          <tbody id="dashboardUsersBody"><tr><td colspan="5">لا توجد بيانات</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- ITEM SALES -->
+  <section id="itemSalesSection" class="panel hidden">
+    <div class="section-header">
+      <h3>إحصائيات مبيعات الأصناف</h3>
+      <button class="btn-gray" onclick="backToDashboard()">رجوع</button>
+    </div>
+
+    <div class="form-grid">
+      <input type="date" id="itemDate">
+      <select id="itemSort">
+        <option value="value">حسب الأعلى قيمة</option>
+        <option value="qty">حسب الأعلى كمية</option>
+      </select>
+      <button onclick="loadItemSales()">عرض</button>
+    </div>
+
+    <div id="itemSalesMsg" class="message"></div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>#</th><th>الصنف</th><th>الكمية</th><th>القيمة</th></tr></thead>
+        <tbody id="itemSalesBody"><tr><td colspan="4">لا توجد بيانات</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SALES REPORT -->
+  <section id="salesReportSection" class="panel hidden">
+    <div class="section-header">
+      <h3>تقرير المبيعات</h3>
+      <button class="btn-gray" onclick="backToDashboard()">رجوع</button>
+    </div>
+
+    <div class="form-grid">
+      <input type="date" id="fromDate">
+      <input type="date" id="toDate">
+      <select id="invoiceType">
+        <option value="all">كل الفواتير</option>
+        <option value="نقد">نقد</option>
+        <option value="ذمم">ذمم</option>
+      </select>
+      <input type="number" id="reportUserId" placeholder="رقم المستخدم - اختياري">
+      <button onclick="loadSalesReport()">عرض التقرير</button>
+    </div>
+
+    <div id="salesReportMsg" class="message"></div>
+
+    <div class="summary-box">
+      <div class="summary-card"><div class="label">عدد الفواتير</div><div class="value" id="sumCount">0</div></div>
+      <div class="summary-card"><div class="label">إجمالي الفواتير</div><div class="value"><span id="sumTotal">0</span> د.أ</div></div>
+      <div class="summary-card"><div class="label">إجمالي المدفوع</div><div class="value"><span id="sumPaid">0</span> د.أ</div></div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr><th>#</th><th>رقم الفاتورة</th><th>العميل</th><th>التاريخ</th><th>النوع</th><th>رقم المستخدم</th><th>قيمة الفاتورة</th><th>المدفوع</th></tr>
+        </thead>
+        <tbody id="salesReportBody"><tr><td colspan="8">لا توجد بيانات</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- INVENTORY -->
+  <section id="inventorySection" class="panel hidden">
+    <div class="section-header">
+      <h3>تقرير المخزون</h3>
+      <button class="btn-gray" onclick="backToDashboard()">رجوع</button>
+    </div>
+
+    <div class="form-grid">
+      <input type="text" id="inventoryKey" placeholder="بحث بالباركود / رقم الصنف / الاسم">
+      <select id="inventorySort">
+        <option value="">الأحدث أولًا</option>
+        <option value="name">حسب الاسم</option>
+        <option value="stock">حسب أعلى مخزون</option>
+        <option value="value">حسب أعلى قيمة</option>
+      </select>
+      <button onclick="loadInventoryReport()">عرض المخزون</button>
+    </div>
+
+    <div id="inventoryMsg" class="message"></div>
+
+    <div class="summary-box">
+      <div class="summary-card"><div class="label">عدد الأصناف</div><div class="value" id="invCount">0</div></div>
+      <div class="summary-card"><div class="label">إجمالي قيمة المخزون</div><div class="value"><span id="invTotalValue">0</span> د.أ</div></div>
+    </div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead>
+          <tr>
+            <th>#</th><th>الباركود</th><th>الصنف</th><th>الوحدة</th><th>الموقع</th>
+            <th>مبيعات</th><th>مشتريات</th><th>بونص مبيعات</th><th>بونص مشتريات</th>
+            <th>مرتجع مبيعات</th><th>مرتجع مشتريات</th><th>إتلاف</th><th>تسوية +</th><th>تسوية -</th>
+            <th>المخزون الحالي</th><th>قيمة المخزون</th>
+          </tr>
+        </thead>
+        <tbody id="inventoryBody"><tr><td colspan="16">لا توجد بيانات</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- PUBLIC ITEM PRICE -->
+  <section id="itemPriceSection" class="panel public-box hidden">
+    <div class="section-header">
+      <h3>استعلام سعر صنف</h3>
+      <button class="btn-gray" onclick="backToDashboard()">رجوع</button>
+    </div>
+
+    <div class="form-grid">
+      <input type="text" id="itemPriceKey" placeholder="اكتب اسم الصنف أو الباركود">
+      <button onclick="loadItemPrice()">بحث</button>
+    </div>
+
+    <div id="itemPriceMsg" class="message"></div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>#</th><th>الباركود</th><th>اسم الصنف</th><th>سعر البيع</th></tr></thead>
+        <tbody id="itemPriceBody"><tr><td colspan="4">لا توجد بيانات</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- LOW STOCK -->
+  <section id="lowStockSection" class="panel hidden">
+    <div class="section-header">
+      <h3>الأصناف قليلة المخزون</h3>
+      <button class="btn-gray" onclick="backToDashboard()">رجوع</button>
+    </div>
+
+    <div class="form-grid">
+      <input type="number" id="lowLimit" value="5" placeholder="حد المخزون">
+      <button onclick="loadLowStock()">عرض</button>
+    </div>
+
+    <div id="lowStockMsg" class="message"></div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>#</th><th>الباركود</th><th>الصنف</th><th>السعر</th><th>الموقع</th><th>المخزون الحالي</th></tr></thead>
+        <tbody id="lowStockBody"><tr><td colspan="6">لا توجد بيانات</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- SALES COMPARE -->
+  <section id="salesCompareSection" class="panel hidden">
+    <div class="section-header">
+      <h3>مقارنة المبيعات</h3>
+      <button class="btn-gray" onclick="backToDashboard()">رجوع</button>
+    </div>
+
+    <div class="form-grid">
+      <input type="date" id="compareFrom">
+      <input type="date" id="compareTo">
+      <button onclick="loadSalesCompare()">عرض المقارنة</button>
+    </div>
+
+    <div id="salesCompareMsg" class="message"></div>
+
+    <div class="table-wrapper">
+      <table>
+        <thead><tr><th>#</th><th>التاريخ</th><th>عدد الفواتير</th><th>إجمالي المبيعات</th><th>إجمالي المدفوع</th></tr></thead>
+        <tbody id="salesCompareBody"><tr><td colspan="5">لا توجد بيانات</td></tr></tbody>
+      </table>
+    </div>
+  </section>
+
+</div>
+
+<script>
+const API = "https://prix-bean-attributes-mills.trycloudflare.com/";
+let token = "";
+
+const sections = [
+  "dashboardSection",
+  "itemSalesSection",
+  "salesReportSection",
+  "inventorySection",
+  "itemPriceSection",
+  "lowStockSection",
+  "salesCompareSection"
+];
+
+function todayStr(){
+  return new Date().toISOString().split("T")[0];
+}
+
+function money(v){
+  return Number(v || 0).toFixed(2);
+}
+
+function setMsg(id, text, type){
+  const el = document.getElementById(id);
+  el.className = "message " + (type || "");
+  el.innerHTML = text || "";
+}
+
+function hideAll(){
+  sections.forEach(id => document.getElementById(id).classList.add("hidden"));
+}
+
+function openSection(id){
+  hideAll();
+  document.getElementById(id).classList.remove("hidden");
+}
+
+function backToDashboard(){
+  openSection("dashboardSection");
+}
+
+async function doLogin(){
+  const u = document.getElementById("username").value.trim();
+  const p = document.getElementById("password").value.trim();
+
+  if(!u || !p){
+    setMsg("loginMsg","يرجى إدخال اسم المستخدم وكلمة المرور","error");
+    return;
+  }
+
+  try{
+    setMsg("loginMsg","جاري تسجيل الدخول...","");
+    const res = await fetch(API + "/api/login",{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({username:u,password:p})
+    });
+
+    const data = await res.json();
+
+    if(data.success){
+      token = data.token;
+      document.getElementById("loginSection").classList.add("hidden");
+      document.getElementById("userChip").classList.remove("hidden");
+      document.getElementById("userChip").innerHTML = "مرحبًا، " + (data.username || u);
+
+      document.getElementById("dashboardDate").value = todayStr();
+      openSection("dashboardSection");
+      loadDashboardToday();
+    }else{
+      setMsg("loginMsg",data.message || "فشل تسجيل الدخول","error");
+    }
+  }catch(err){
+    setMsg("loginMsg","فشل الاتصال بالـ API: " + err.message,"error");
+  }
+}
+
+async function loadDashboardToday(){
+  let url = API + "/api/dashboard-today";
+  const d = document.getElementById("dashboardDate").value;
+  if(d) url += "?date=" + encodeURIComponent(d);
+
+  try{
+    setMsg("dashboardMsg","جاري تحميل لوحة اليوم...","");
+    const res = await fetch(url,{headers:{"Authorization":"Bearer " + token}});
+    const data = await res.json();
+
+    if(!data.success){
+      setMsg("dashboardMsg",data.message,"error");
+      return;
+    }
+
+    document.getElementById("dashTotalSales").innerText = money(data.summary.total_sales);
+    document.getElementById("dashTotalPaid").innerText = money(data.summary.total_paid);
+    document.getElementById("dashInvoiceCount").innerText = data.summary.invoice_count || 0;
+    document.getElementById("dashSoldItems").innerText = data.summary.sold_items_count || 0;
+    document.getElementById("dashTopItem").innerText =
+      data.summary.top_item_name ? data.summary.top_item_name + " (" + data.summary.top_item_qty + ")" : "-";
+
+    setMsg("dashboardMsg","تم تحديث لوحة اليوم بتاريخ " + data.date,"success");
+
+    const body = document.getElementById("dashboardUsersBody");
+    body.innerHTML = "";
+
+    if(!data.users || data.users.length === 0){
+      body.innerHTML = '<tr><td colspan="5">لا توجد مبيعات للمستخدمين</td></tr>';
+      return;
+    }
+
+    data.users.forEach((x,i)=>{
+      body.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${x.user_name || x.user_id}</td>
+        <td>${x.invoice_count}</td>
+        <td>${money(x.total_sales)} د.أ</td>
+        <td>${money(x.total_paid)} د.أ</td>
+      </tr>`;
+    });
+
+  }catch(err){
+    setMsg("dashboardMsg","فشل تحميل لوحة اليوم: " + err.message,"error");
+  }
+}
+
+async function loadItemSales(){
+  let url = API + "/api/item-sales-stats?sort=" + encodeURIComponent(document.getElementById("itemSort").value);
+  const d = document.getElementById("itemDate").value;
+  if(d) url += "&date=" + encodeURIComponent(d);
+
+  try{
+    setMsg("itemSalesMsg","جاري التحميل...","");
+    const res = await fetch(url,{headers:{"Authorization":"Bearer " + token}});
+    const data = await res.json();
+
+    if(!data.success){
+      setMsg("itemSalesMsg",data.message,"error");
+      return;
+    }
+
+    setMsg("itemSalesMsg","عدد الأصناف: " + data.count,"success");
+    const body = document.getElementById("itemSalesBody");
+    body.innerHTML = "";
+
+    if(!data.items || data.items.length === 0){
+      body.innerHTML = '<tr><td colspan="4">لا توجد بيانات</td></tr>';
+      return;
+    }
+
+    data.items.forEach((x,i)=>{
+      body.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${x.item_name}</td>
+        <td>${x.total_qty}</td>
+        <td>${money(x.total_value)} د.أ</td>
+      </tr>`;
+    });
+
+  }catch(err){
+    setMsg("itemSalesMsg","فشل تحميل البيانات: " + err.message,"error");
+  }
+}
+
+function openSalesReport(){
+  document.getElementById("fromDate").value = todayStr();
+  document.getElementById("toDate").value = todayStr();
+  openSection("salesReportSection");
+}
+
+async function loadSalesReport(){
+  const from = document.getElementById("fromDate").value;
+  const to = document.getElementById("toDate").value;
+  const type = document.getElementById("invoiceType").value;
+  const userId = document.getElementById("reportUserId").value.trim();
+
+  let url = API + "/api/sales-report?type=" + encodeURIComponent(type);
+  if(from) url += "&from=" + encodeURIComponent(from);
+  if(to) url += "&to=" + encodeURIComponent(to);
+  if(userId) url += "&user_id=" + encodeURIComponent(userId);
+
+  try{
+    setMsg("salesReportMsg","جاري تحميل تقرير المبيعات...","");
+    const res = await fetch(url,{headers:{"Authorization":"Bearer " + token}});
+    const data = await res.json();
+
+    if(!data.success){
+      setMsg("salesReportMsg",data.message,"error");
+      return;
+    }
+
+    document.getElementById("sumCount").innerText = data.count || 0;
+    document.getElementById("sumTotal").innerText = money(data.total_invoices);
+    document.getElementById("sumPaid").innerText = money(data.total_paid);
+
+    setMsg("salesReportMsg",`تم جلب التقرير من ${data.from_date} إلى ${data.to_date}`,"success");
+
+    const body = document.getElementById("salesReportBody");
+    body.innerHTML = "";
+
+    if(!data.invoices || data.invoices.length === 0){
+      body.innerHTML = '<tr><td colspan="8">لا توجد مبيعات ضمن الفترة المحددة</td></tr>';
+      return;
+    }
+
+    data.invoices.forEach((x,i)=>{
+      body.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>فاتورة ${x.inv_id}</td>
+        <td>${x.client_name || ""}</td>
+        <td>${x.date_added || ""}</td>
+        <td>${x.type || ""}</td>
+        <td>${x.user_id || ""}</td>
+        <td>${money(x.invoice_total)} د.أ</td>
+        <td>${money(x.payment)} د.أ</td>
+      </tr>`;
+    });
+
+  }catch(err){
+    setMsg("salesReportMsg","فشل تحميل التقرير: " + err.message,"error");
+  }
+}
+
+async function loadInventoryReport(){
+  const key = document.getElementById("inventoryKey").value.trim();
+  const sort = document.getElementById("inventorySort").value;
+
+  let url = API + "/api/inventory-report";
+  const params = [];
+  if(key) params.push("key=" + encodeURIComponent(key));
+  if(sort) params.push("sort=" + encodeURIComponent(sort));
+  if(params.length) url += "?" + params.join("&");
+
+  try{
+    setMsg("inventoryMsg","جاري تحميل تقرير المخزون...","");
+    const res = await fetch(url,{headers:{"Authorization":"Bearer " + token}});
+    const data = await res.json();
+
+    if(!data.success){
+      setMsg("inventoryMsg",data.message,"error");
+      return;
+    }
+
+    document.getElementById("invCount").innerText = data.count || 0;
+    document.getElementById("invTotalValue").innerText = money(data.total_inventory_value);
+
+    setMsg("inventoryMsg","تم جلب تقرير المخزون بنجاح","success");
+
+    const body = document.getElementById("inventoryBody");
+    body.innerHTML = "";
+
+    if(!data.items || data.items.length === 0){
+      body.innerHTML = '<tr><td colspan="16">لا توجد بيانات</td></tr>';
+      return;
+    }
+
+    data.items.forEach((x,i)=>{
+      body.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${x.barcode}</td>
+        <td>${x.item_name}</td>
+        <td>${x.unit_name || ""}</td>
+        <td>${x.location || ""}</td>
+        <td>${x.sales}</td>
+        <td>${x.purchases}</td>
+        <td>${x.sales_bonus}</td>
+        <td>${x.purchase_bonus}</td>
+        <td>${x.sales_returns}</td>
+        <td>${x.purchase_returns}</td>
+        <td>${x.damage}</td>
+        <td>${x.stock_add}</td>
+        <td>${x.stock_sub}</td>
+        <td><b>${x.current_stock}</b></td>
+        <td><b>${money(x.total_value)} د.أ</b></td>
+      </tr>`;
+    });
+
+  }catch(err){
+    setMsg("inventoryMsg","فشل تحميل تقرير المخزون: " + err.message,"error");
+  }
+}
+
+async function loadItemPrice(){
+  const key = document.getElementById("itemPriceKey").value.trim();
+
+  if(!key){
+    setMsg("itemPriceMsg","يرجى كتابة اسم الصنف أو الباركود","error");
+    return;
+  }
+
+  try{
+    setMsg("itemPriceMsg","جاري البحث...","");
+    const res = await fetch(API + "/api/item-price?key=" + encodeURIComponent(key));
+    const data = await res.json();
+
+    if(!data.success){
+      setMsg("itemPriceMsg",data.message,"error");
+      return;
+    }
+
+    setMsg("itemPriceMsg","عدد النتائج: " + data.count,"success");
+
+    const body = document.getElementById("itemPriceBody");
+    body.innerHTML = "";
+
+    if(!data.items || data.items.length === 0){
+      body.innerHTML = '<tr><td colspan="4">لا توجد نتائج</td></tr>';
+      return;
+    }
+
+    data.items.forEach((x,i)=>{
+      body.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${x.barcode}</td>
+        <td>${x.item_name}</td>
+        <td><b>${money(x.sale_price)} د.أ</b></td>
+      </tr>`;
+    });
+
+  }catch(err){
+    setMsg("itemPriceMsg","فشل البحث: " + err.message,"error");
+  }
+}
+
+async function loadLowStock(){
+  const limit = document.getElementById("lowLimit").value || 5;
+
+  try{
+    setMsg("lowStockMsg","جاري تحميل الأصناف قليلة المخزون...","");
+    const res = await fetch(API + "/api/low-stock?limit=" + encodeURIComponent(limit),{
+      headers:{"Authorization":"Bearer " + token}
+    });
+    const data = await res.json();
+
+    if(!data.success){
+      setMsg("lowStockMsg",data.message,"error");
+      return;
+    }
+
+    setMsg("lowStockMsg","عدد الأصناف: " + data.count,"success");
+
+    const body = document.getElementById("lowStockBody");
+    body.innerHTML = "";
+
+    if(!data.items || data.items.length === 0){
+      body.innerHTML = '<tr><td colspan="6">لا توجد أصناف قليلة المخزون</td></tr>';
+      return;
+    }
+
+    data.items.forEach((x,i)=>{
+      body.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${x.barcode}</td>
+        <td>${x.item_name}</td>
+        <td>${money(x.sale_price)} د.أ</td>
+        <td>${x.location || ""}</td>
+        <td><b>${x.current_stock}</b></td>
+      </tr>`;
+    });
+
+  }catch(err){
+    setMsg("lowStockMsg","فشل تحميل الأصناف: " + err.message,"error");
+  }
+}
+
+function openCompareSales(){
+  const t = todayStr();
+  document.getElementById("compareFrom").value = t;
+  document.getElementById("compareTo").value = t;
+  openSection("salesCompareSection");
+}
+
+async function loadSalesCompare(){
+  const from = document.getElementById("compareFrom").value;
+  const to = document.getElementById("compareTo").value;
+
+  let url = API + "/api/sales-compare";
+  const params = [];
+  if(from) params.push("from=" + encodeURIComponent(from));
+  if(to) params.push("to=" + encodeURIComponent(to));
+  if(params.length) url += "?" + params.join("&");
+
+  try{
+    setMsg("salesCompareMsg","جاري تحميل المقارنة...","");
+    const res = await fetch(url,{headers:{"Authorization":"Bearer " + token}});
+    const data = await res.json();
+
+    if(!data.success){
+      setMsg("salesCompareMsg",data.message,"error");
+      return;
+    }
+
+    setMsg("salesCompareMsg",`تم جلب المقارنة من ${data.from_date} إلى ${data.to_date}`,"success");
+
+    const body = document.getElementById("salesCompareBody");
+    body.innerHTML = "";
+
+    if(!data.days || data.days.length === 0){
+      body.innerHTML = '<tr><td colspan="5">لا توجد بيانات</td></tr>';
+      return;
+    }
+
+    data.days.forEach((x,i)=>{
+      body.innerHTML += `
+      <tr>
+        <td>${i+1}</td>
+        <td>${x.date}</td>
+        <td>${x.invoice_count}</td>
+        <td>${money(x.total_sales)} د.أ</td>
+        <td>${money(x.total_paid)} د.أ</td>
+      </tr>`;
+    });
+
+  }catch(err){
+    setMsg("salesCompareMsg","فشل تحميل المقارنة: " + err.message,"error");
+  }
+}
+</script>
+
+</body>
+</html>
